@@ -1,0 +1,110 @@
+/* Estilos Gerais */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: #F5F3EF; /* Areia clara */
+    min-height: 100vh;
+    color: #1A1A1A; /* Preto discreto */
+    line-height: 1.6;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 50px 20px; /* Aumentado o padding para permitir mais scroll */
+}
+.container { max-width: 900px; width: 100%; margin: 0 auto; }
+.hidden { display: none !important; }
+
+/* Cabeçalho */
+.header { text-align: center; margin-bottom: 20px; /* Reduzido o margin-bottom */ padding: 20px 0; /* Reduzido o padding */ background: white; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+.logo-image { max-width: 180px; /* Reduzido o tamanho máximo do logo */ height: auto; margin-bottom: 5px; /* Reduzido o margin-bottom */ }
+.subtitle { font-size: 1rem; /* Levemente reduzido */ color: #1A1A1A; /* Preto discreto */ font-style: normal; }
+
+/* Tela de Identificação */
+.identification-screen { background: white; padding: 40px; border-radius: 15px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+.identification-title { color: #1A1A1A; /* Preto discreto */ margin-bottom: 20px; }
+.identification-text { margin-bottom: 30px; color: #1A1A1A; /* Preto discreto */ }
+.form-group { margin-bottom: 20px; text-align: left; max-width: 300px; margin-left: auto; margin-right: auto; }
+.form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #1A1A1A; /* Preto discreto */ }
+.form-group input { width: 100%; padding: 12px; border: 1px solid #1D3B45; /* Verde profundo */ border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 1rem; }
+.form-group input:focus { outline: none; border-color: #F2A735; /* Amarelo solar escuro */ box-shadow: 0 0 0 3px rgba(242, 167, 53, 0.25); }
+
+/* Tela de Seleção */
+.selection-screen { background: white; padding: 40px; border-radius: 15px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+.selection-title { color: #1A1A1A; /* Preto discreto */ margin-bottom: 30px; }
+.module-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-bottom: 30px; }
+.module-btn { padding: 20px; border: 2px solid #1D3B45; /* Verde profundo */ border-radius: 10px; background: #F5F3EF; /* Areia clara */ font-family: 'Montserrat', sans-serif; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; color: #1A1A1A; /* Preto discreto */ }
+.module-btn:hover { border-color: #F2A735; /* Amarelo solar escuro */ background: #F5F3EF; /* Areia clara */ transform: translateY(-3px); }
+
+/* Progresso */
+.progress-section { background: white; padding: 25px; border-radius: 15px; margin-bottom: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+.progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.progress-title { font-size: 1.3rem; font-weight: 700; color: #1A1A1A; /* Preto discreto */ }
+.progress-stats { font-size: 1rem; color: #1A1A1A; /* Preto discreto */ }
+.score-display { display: flex; gap: 20px; font-size: 0.9rem; margin-top: 10px; }
+.score-item { display: flex; align-items: center; gap: 5px; }
+.score-correct { color: #10b981; /* Manter verde padrão para acerto */ }
+.score-incorrect { color: #ef4444; /* Manter vermelho padrão para erro */ }
+.progress-bar { width: 100%; height: 12px; background: #1D3B45; /* Verde profundo */ border-radius: 6px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #F2A735 0%, #D65A38 100%); /* Amarelo solar escuro para Vermelho barro */ border-radius: 6px; transition: width 0.5s ease; width: 0%; }
+
+/* Flashcard */
+.card-container { perspective: 1000px; margin-bottom: 30px; display: flex; justify-content: center; }
+.flashcard { width: 100%; max-width: 500px; height: 300px; position: relative; transform-style: preserve-3d; transition: transform 0.6s; }
+.flashcard.flipped { transform: rotateY(180deg); }
+.card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 15px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 30px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); }
+.card-front { background: white; color: #1A1A1A; /* Preto discreto */ border: 2px solid #1D3B45; /* Verde profundo */ }
+.card-question { font-size: 1.4rem; line-height: 1.7; }
+.card-back { background: linear-gradient(135deg, #F2A735 0%, #D65A38 100%); /* Amarelo solar escuro para Vermelho barro */ color: white; transform: rotateY(180deg); }
+.card-answer { font-size: 2.2rem; font-weight: 700; margin-bottom: 15px; }
+.card-feedback { font-size: 1rem; opacity: 0.9; font-style: normal; max-width: 90%; }
+.result-indicator { position: absolute; top: 15px; right: 15px; padding: 8px 15px; border-radius: 20px; font-size: 0.9rem; font-weight: 600; }
+.result-correct { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+.result-incorrect { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+
+/* Opções e Botões */
+.options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
+.option-btn { padding: 15px 20px; border: 2px solid #1D3B45; /* Verde profundo */ border-radius: 10px; background: white; font-family: 'Montserrat', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; color: #1A1A1A; /* Preto discreto */ width: 100%; }
+.option-btn:hover:not(:disabled) { border-color: #F2A735; /* Amarelo solar escuro */ background: #F5F3EF; /* Areia clara */ transform: translateY(-2px); }
+.option-btn.correct { background: #10b981; color: white; border-color: #10b981; }
+.option-btn.incorrect { background: #ef4444; color: white; border-color: #ef4444; }
+.option-btn:disabled { cursor: not-allowed; opacity: 0.7; }
+.controls { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
+.btn { padding: 12px 24px; border: none; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; min-width: 140px; }
+.btn-primary { background: #1D3B45; /* Verde profundo */ color: white; }
+.btn-primary:hover { background: #0F2A33; /* Tom mais escuro do verde profundo */ transform: translateY(-2px); }
+.btn-secondary { background: #D65A38; /* Vermelho barro */ color: white; }
+.btn-secondary:hover { background: #B0482E; /* Tom mais escuro do vermelho barro */ transform: translateY(-2px); }
+.btn-next { background: #F2A735; /* Amarelo solar escuro */ color: #1A1A1A; /* Preto discreto */ }
+.btn-next:hover { background: #D65A38; /* Vermelho barro */ transform: translateY(-2px); }
+
+/* Tela de Conclusão */
+.completion-screen { text-align: center; background: white; padding: 40px; border-radius: 15px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); }
+.completion-title { font-size: 2.2rem; color: #1A1A1A; /* Preto discreto */ margin-bottom: 20px; font-weight: 700; }
+.final-score { font-size: 1.5rem; margin-bottom: 20px; padding: 20px; background: #F5F3EF; /* Areia clara */ border-radius: 10px; }
+#scoreMessage { margin-bottom: 30px; font-size: 1.1rem; }
+.score-excellent { color: #10b981; }
+.score-good { color: #f59e0b; }
+.score-needs-improvement { color: #ef4444; }
+#restartBtn, #backToMenuBtn { margin: 10px; }
+
+/* Badges Display */
+.badges-display { margin-top: 30px; padding: 20px; background: #F5F3EF; /* Areia clara */ border-radius: 10px; }
+.badges-display h3 { color: #1A1A1A; /* Preto discreto */ margin-bottom: 20px; font-size: 1.4rem; }
+.user-badges-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
+.badge-item { display: flex; flex-direction: column; align-items: center; text-align: center; width: 100px; }
+.badge-icon { width: 60px; height: 60px; background: #1D3B45; /* Verde profundo */ border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 2rem; color: white; margin-bottom: 5px; border: 2px solid #F2A735; /* Amarelo solar escuro */ }
+.badge-icon.unlocked { background: #F2A735; /* Amarelo solar escuro */ color: #1A1A1A; /* Preto discreto */ border-color: #D65A38; /* Vermelho barro */ }
+.badge-name { font-size: 0.85rem; font-weight: 600; color: #1A1A1A; /* Preto discreto */ }
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .flashcard { width: 350px; height: 280px; }
+    .card-question { font-size: 1.2rem; }
+    .card-answer { font-size: 1.8rem; }
+    .options-grid { grid-template-columns: 1fr; }
+    .module-list { grid-template-columns: 1fr; }
+    .btn { min-width: unset; width: 100%; }
+    .controls { flex-direction: column; }
+}
+
+
