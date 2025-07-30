@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>
+   BEMA! - Quiz Educação Clássica Cristã
+  </title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+  <link href="style.css" rel="stylesheet"/>
+ </head>
+ <body>
+  <img alt="Logo do BEMA" src="bema_logo.png" style="display:block;margin:0 auto 20px;width:120px;"/>
+  <div class="container">
+   <div class="container">
+    <div class="header">
+     <img alt="Logo BEMA! Education" class="logo-image" src="bema_logo.png"/>
+     <div class="subtitle">
+      Quiz de Educação Clássica Cristã
+     </div>
+    </div>
+    <!-- Tela de Identificação -->
+    <div class="identification-screen" id="identificationScreen">
+     <h2 class="identification-title">
+      Bem-vindo ao BEMA!
+     </h2>
+     <p class="identification-text">
+      Para salvar seu progresso e colecionar conquistas, por favor, digite seu nome e e-mail.
+     </p>
+     <div class="form-group">
+      <label for="userName">
+       Nome:
+      </label>
+      <input id="userName" placeholder="Seu nome" required="" type="text"/>
+     </div>
+     <div class="form-group">
+      <label for="userEmail">
+       E-mail:
+      </label>
+      <input id="userEmail" placeholder="seu.email@exemplo.com" required="" type="email"/>
+     </div>
+     <button class="btn btn-primary" id="startQuizBtn">
+      Começar o Quiz
+     </button>
+    </div>
+    <!-- Tela de Seleção de Módulo (inicialmente oculta) -->
+    <div class="selection-screen hidden" id="selectionScreen">
+     <h2 class="selection-title">
+      Escolha um Módulo para Estudar
+     </h2>
+     <div class="module-list" id="moduleList">
+      <!-- Os módulos serão inseridos aqui pelo JavaScript -->
+     </div>
+     <button class="btn btn-secondary" id="startRandomQuiz">
+      Quiz Aleatório (Todos os Módulos)
+     </button>
+    </div>
+    <!-- Tela do Jogo (inicialmente oculta) -->
+    <div class="hidden" id="gameScreen">
+     <div class="progress-section">
+      <div class="progress-header">
+       <div class="progress-title" id="quizTitle">
+        Teste seus conhecimentos
+       </div>
+       <div class="progress-stats">
+        Pergunta
+        <span id="currentQuestion">
+         1
+        </span>
+        de
+        <span id="totalQuestions">
+         0
+        </span>
+       </div>
+      </div>
+      <div class="score-display">
+       <div class="score-item score-correct">
+        ✓ Acertos:
+        <span id="correctCount">
+         0
+        </span>
+       </div>
+       <div class="score-item score-incorrect">
+        ✗ Erros:
+        <span id="incorrectCount">
+         0
+        </span>
+       </div>
+      </div>
+      <div class="progress-bar">
+       <div class="progress-fill" id="progressFill">
+       </div>
+      </div>
+     </div>
+     <div class="card-container">
+      <div class="flashcard" id="flashcard">
+       <div class="card-face card-front">
+        <div class="card-question" id="cardQuestion">
+         Qual pilar esta definição descreve?
+        </div>
+       </div>
+       <div class="card-face card-back">
+        <div class="result-indicator" id="resultIndicator">
+        </div>
+        <div class="card-answer" id="cardAnswer">
+        </div>
+        <p class="card-feedback" id="cardFeedback">
+        </p>
+       </div>
+      </div>
+     </div>
+     <div class="options-grid" id="optionsGrid">
+     </div>
+     <div class="controls">
+      <button class="btn btn-next" id="nextBtn" style="display: none;">
+       Próxima Pergunta
+      </button>
+     </div>
+    </div>
+    <!-- Tela de Conclusão (inicialmente oculta) -->
+    <div class="completion-screen hidden" id="completionScreen">
+     <div class="completion-title">
+      Quiz Concluído! 🎉
+     </div>
+     <div class="final-score" id="finalScore">
+     </div>
+     <div id="scoreMessage">
+     </div>
+     <div class="badges-display" id="badgesDisplay">
+      <h3>
+       Suas Conquistas:
+      </h3>
+      <div class="user-badges-grid" id="userBadges">
+       <!-- Badges serão inseridas aqui -->
+      </div>
+     </div>
+     <button class="btn btn-primary" id="restartBtn">
+      Jogar Novamente
+     </button>
+     <button class="btn btn-secondary" id="backToMenuBtn">
+      Voltar ao Menu
+     </button>
+    </div>
+   </div>
+   <script src="quiz.js">
+   </script>
+  </div>
+ </body>
+</html>
