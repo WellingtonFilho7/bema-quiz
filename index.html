@@ -25,43 +25,30 @@
   </script>
 </head>
 <body>
-  <main class="container">
-    <!-- Logo -->
+  <div class="container">
     <img src="bema_logo.png" alt="Logo BEMA" class="logo">
 
-    <!-- Título -->
-    <h1>Quiz de Educação Clássica Cristã</h1>
+    <h1>Quiz de educação clássica cristã</h1>
 
-    <!-- Formulário de nome e e‑mail -->
-    <form id="user-form" class="form">
-      <label for="name">Nome</label>
-      <input type="text" id="name" required>
-      <label for="email">E‑mail</label>
-      <input type="email" id="email" required>
-      <button type="button" id="start-quiz">Começar quiz</button>
+    <form id="user-form" class="user-form">
+      <div class="form-group">
+        <label for="name">Nome</label>
+        <input type="text" id="name" required>
+      </div>
+      <div class="form-group">
+        <label for="email">E‑mail</label>
+        <input type="email" id="email" required>
+      </div>
+      <button type="button" id="start-quiz" class="btn">Começar quiz</button>
     </form>
 
-    <!-- Quiz (escondido até o form ser enviado) -->
-    <section id="quiz-container" class="quiz" hidden>
-      <div id="question-area" class="question"></div>
-
-      <div class="progress">
-        <div class="progress-bar" id="progress-bar"></div>
-      </div>
-
-      <div id="answers" class="answers"></div>
-
-      <button id="next-button">Próxima</button>
-
-      <div id="result" class="result"></div>
+    <section id="quiz-container" class="quiz-container" hidden>
+      <!-- aqui vai o seu quiz -->
     </section>
-  </main>
+  </div>
 
-  <!-- Sua lógica de quiz -->
   <script src="quiz.js"></script>
-
   <script>
-    // Integra o form com o início do quiz e grava no Firebase
     const form = document.getElementById('user-form');
     const startBtn = document.getElementById('start-quiz');
     const quizSection = document.getElementById('quiz-container');
@@ -78,7 +65,7 @@
         .then(() => {
           form.hidden = true;
           quizSection.hidden = false;
-          iniciarQuiz(); // chama sua função existente
+          iniciarQuiz(); // sua função existente
         })
         .catch(err => {
           console.error(err);
