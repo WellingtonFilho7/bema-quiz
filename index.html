@@ -10,7 +10,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="bema_logo_refined.png" alt="Logo BEMA! Education" class="logo-image">
+            <img src="bema_logo.png" alt="Logo BEMA! Education" class="logo-image">
             <div class="subtitle">Quiz de Educação Clássica Cristã</div>
         </div>
 
@@ -26,46 +26,47 @@
                 <label for="userEmail">E-mail:</label>
                 <input type="email" id="userEmail" placeholder="seu.email@exemplo.com" required>
             </div>
-            <button id="startQuizBtn" class="btn btn-primary">Começar o Quiz</button>
+            <button class="btn btn-primary" id="startQuizBtn">Começar o Quiz</button>
         </div>
 
-        <!-- Tela de Seleção de Módulo (inicialmente oculta) -->
+        <!-- Tela de Seleção de Módulo (inicialmente oculta ) -->
         <div id="selectionScreen" class="selection-screen hidden">
             <h2 class="selection-title">Escolha um Módulo para Estudar</h2>
-            <div id="moduleList" class="module-list">
-                <!-- Os módulos serão inseridos aqui pelo JavaScript -->
+            <div class="module-list" id="moduleList">
+                <!-- Módulos serão inseridos aqui pelo JavaScript -->
             </div>
-            <button id="startRandomQuiz" class="btn btn-secondary">Quiz Aleatório (Todos os Módulos)</button>
+            <button class="btn btn-secondary" id="startRandomQuiz">Quiz Aleatório (Todos os Módulos)</button>
         </div>
 
         <!-- Tela do Jogo (inicialmente oculta) -->
-        <div id="gameScreen" class="hidden">
-            <div class="progress-section">
-                <div class="progress-header">
-                    <div id="quizTitle" class="progress-title">Teste seus conhecimentos</div>
-                    <div class="progress-stats">
-                        Pergunta <span id="currentQuestion">1</span> de <span id="totalQuestions">0</span>
+        <div id="gameScreen" class="game-screen hidden">
+            <div class="quiz-header">
+                <h2 id="quizTitle">Teste seus conhecimentos</h2>
+                <div class="progress-info">
+                    <span>Pergunta <span id="currentQuestion">1</span> de <span id="totalQuestions">0</span></span>
+                    <div class="score-info">
+                        <span class="correct-count">✓ Acertos: <span id="correctCount">0</span></span>
+                        <span class="incorrect-count">✗ Erros: <span id="incorrectCount">0</span></span>
                     </div>
                 </div>
-                <div class="score-display">
-                    <div class="score-item score-correct">✓ Acertos: <span id="correctCount">0</span></div>
-                    <div class="score-item score-incorrect">✗ Erros: <span id="incorrectCount">0</span></div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
                 </div>
-                <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
             </div>
 
-            <div class="card-container">
+            <div class="quiz-content">
                 <div class="flashcard" id="flashcard">
-                    <div class="card-face card-front">
-                        <div class="card-question" id="cardQuestion">Qual pilar esta definição descreve?</div>
+                    <div class="card-front">
+                        <p class="card-question" id="cardQuestion">Qual pilar esta definição descreve?</p>
                     </div>
-                    <div class="card-face card-back">
-                        <div class="result-indicator" id="resultIndicator"></div>
-                        <div class="card-answer" id="cardAnswer"></div>
+                    <div class="card-back">
+                        <p class="card-answer" id="cardAnswer">Resposta aqui</p>
                         <p class="card-feedback" id="cardFeedback"></p>
                     </div>
                 </div>
             </div>
+
+            <div class="result-indicator" id="resultIndicator"></div>
 
             <div class="options-grid" id="optionsGrid"></div>
 
@@ -93,5 +94,4 @@
     <script src="quiz.js"></script>
 </body>
 </html>
-
 
