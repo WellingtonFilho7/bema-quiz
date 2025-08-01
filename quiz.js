@@ -528,3 +528,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadQuestions();
 });
 
+    // Inicializa o app
+    loadQuestions();
+});
+
