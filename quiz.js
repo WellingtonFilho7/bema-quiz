@@ -1,4 +1,89 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // ===== SISTEMA DE COLETA LOCAL INTEGRADO =====
+    class LocalDataCollector {
+        constructor() {
+            this.storageKey = 'bema_user_data';
+            this.init();
+        }
+
+        init() {
+            if (!localStorage.getItem(this.storageKey)) {
+                const initialData = {
+                    users: [],
+                    sessions: [],
+                    lastUpdated: new Date().toISOString()
+                };
+                localStorage.setItem(this.storageKey, JSON.stringify(initialData));
+            }
+        }
+
+        addUser(name, email) {
+            const data = this.getData();
+            const existingUser = data.users.find(u => u.email === email);
+            if (existingUser) {
+                return existingUser;
+            }
+
+            const newUser = {
+                id: Date.now(),
+                name: name,
+                email: email,
+                createdAt: new Date().toISOString(),
+                totalSessions: 0,
+                totalQuestions: 0,
+                correctAnswers: 0
+            };
+
+            data.users.push(newUser);
+            data.lastUpdated = new Date().toISOString();
+            this.saveData(data);
+            console.log('✅ Usuário salvo localmente:', newUser);
+            return newUser;
+        }
+
+        addSession(userId, moduleName, totalQuestions, correctAnswers, timeSpent) {
+            const data = this.getData();
+            const session = {
+                id: Date.now(),
+                userId: userId,
+                moduleName: moduleName,
+                totalQuestions: totalQuestions,
+                correctAnswers: correctAnswers,
+                score: Math.round((correctAnswers / totalQuestions) * 100),
+                timeSpent: timeSpent,
+                completedAt: new Date().toISOString()
+            };
+
+            data.sessions.push(session);
+
+            const user = data.users.find(u => u.id === userId);
+            if (user) {
+                user.totalSessions++;
+                user.totalQuestions += totalQuestions;
+                user.correctAnswers += correctAnswers;
+            }
+
+            data.lastUpdated = new Date().toISOString();
+            this.saveData(data);
+            console.log('✅ Sessão salva localmente:', session);
+            return session;
+        }
+
+        getData() {
+            const data = localStorage.getItem(this.storageKey);
+            return data ? JSON.parse(data) : { users: [], sessions: [], lastUpdated: new Date().toISOString() };
+        }
+
+        saveData(data) {
+            localStorage.setItem(this.storageKey, JSON.stringify(data));
+        }
+    }
+
+    // Instância global do coletor local
+    const localCollector = new LocalDataCollector();
+    let quizStartTime = null;
+
+    // ===== CONFIGURAÇÃO ORIGINAL DO QUIZ =====
     // Configuração da API
     const API_BASE_URL = 'https://9yhyi3czv5z8.manus.space/api'; // URL do backend
     
@@ -71,8 +156,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Funções da API
+    // ===== FUNÇÕES DA API MODIFICADAS =====
     async function createOrGetUser(name, email) {
+        // SEMPRE salva localmente primeiro
+        const localUser = localCollector.addUser(name, email);
+        
         try {
             const response = await fetch(`${API_BASE_URL}/users`, {
                 method: 'POST',
@@ -84,27 +172,19 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const data = await response.json();
             if (data.success) {
-                return data.user;
-            } else {
-                throw new Error(data.error || 'Erro ao criar usuário');
+                console.log('✅ Usuário salvo no backend também');
+                return { ...localUser, backendId: data.user.id };
             }
         } catch (error) {
-            console.error('Erro na API:', error);
-            // Fallback para localStorage se API não estiver disponível
-            const fallbackUser = {
-                id: Date.now(),
-                username: name,
-                email: email,
-                created_at: new Date().toISOString(),
-                total_sessions: 0,
-                total_badges: 0
-            };
-            localStorage.setItem('currentUser', JSON.stringify(fallbackUser));
-            return fallbackUser;
+            console.log('⚠️ Backend indisponível, usando dados locais');
         }
+        
+        return localUser;
     }
 
     async function startQuizSession(userId, moduleName, totalQuestions) {
+        quizStartTime = Date.now();
+        
         try {
             const response = await fetch(`${API_BASE_URL}/quiz/start`, {
                 method: 'POST',
@@ -121,24 +201,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             if (data.success) {
                 return data.session;
-            } else {
-                throw new Error(data.error || 'Erro ao iniciar sessão');
             }
         } catch (error) {
-            console.error('Erro na API:', error);
-            // Fallback para localStorage
-            const fallbackSession = {
-                id: Date.now(),
-                user_id: userId,
-                module_name: moduleName,
-                total_questions: totalQuestions,
-                start_time: new Date().toISOString(),
-                correct_answers: 0,
-                incorrect_answers: 0
-            };
-            localStorage.setItem('currentSession', JSON.stringify(fallbackSession));
-            return fallbackSession;
+            console.log('⚠️ Backend indisponível para sessão');
         }
+        
+        // Fallback local
+        const fallbackSession = {
+            id: Date.now(),
+            user_id: userId,
+            module_name: moduleName,
+            total_questions: totalQuestions,
+            start_time: new Date().toISOString(),
+            correct_answers: 0,
+            incorrect_answers: 0
+        };
+        return fallbackSession;
     }
 
     async function submitAnswer(sessionId, questionText, userAnswer, correctAnswer, isCorrect, timeToAnswer) {
@@ -160,15 +238,28 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const data = await response.json();
             if (!data.success) {
-                console.error('Erro ao enviar resposta:', data.error);
+                console.log('⚠️ Erro ao enviar resposta para backend');
             }
         } catch (error) {
-            console.error('Erro na API:', error);
-            // Em caso de erro, continua o jogo normalmente
+            console.log('⚠️ Backend indisponível para resposta');
         }
     }
 
     async function completeQuiz(sessionId) {
+        const timeSpent = quizStartTime ? Math.round((Date.now() - quizStartTime) / 1000) : 0;
+        
+        // SEMPRE salva localmente
+        if (currentUser && currentSession) {
+            localCollector.addSession(
+                currentUser.id,
+                currentSession.module_name,
+                currentQuestions.length,
+                correctAnswers,
+                timeSpent
+            );
+            console.log('✅ Sessão salva localmente');
+        }
+        
         try {
             const response = await fetch(`${API_BASE_URL}/quiz/complete`, {
                 method: 'POST',
@@ -182,15 +273,14 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const data = await response.json();
             if (data.success) {
+                console.log('✅ Quiz finalizado no backend também');
                 return data.badges_earned || [];
-            } else {
-                console.error('Erro ao finalizar quiz:', data.error);
-                return [];
             }
         } catch (error) {
-            console.error('Erro na API:', error);
-            return [];
+            console.log('⚠️ Backend indisponível para finalização');
         }
+        
+        return [];
     }
 
     async function getUserBadges(userId) {
@@ -204,11 +294,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 return [];
             }
         } catch (error) {
-            console.error('Erro na API:', error);
+            console.log('⚠️ Backend indisponível para badges');
             return [];
         }
     }
 
+    // ===== RESTO DO CÓDIGO ORIGINAL =====
     // Carrega as perguntas do arquivo JSON
     async function loadQuestions() {
         try {
@@ -353,20 +444,46 @@ document.addEventListener('DOMContentLoaded', () => {
         const isCorrect = selectedOption === correctAnswer;
         const timeToAnswer = questionStartTime ? (Date.now() - questionStartTime) / 1000 : null;
 
+        // Desabilita todos os botões imediatamente
+        Array.from(optionsGrid.children).forEach(btn => btn.disabled = true);
+
         if (isCorrect) {
             correctAnswers++;
             button.classList.add('correct');
             resultIndicator.textContent = '✓ Correto!';
             resultIndicator.className = 'result-indicator result-correct';
+            
+            // Fade out das opções incorretas, deixando apenas a correta
+            Array.from(optionsGrid.children).forEach(btn => {
+                if (btn !== button) {
+                    btn.classList.add('fade-out');
+                    setTimeout(() => {
+                        btn.classList.add('hidden');
+                    }, 300);
+                }
+            });
         } else {
             incorrectAnswers++;
             button.classList.add('incorrect');
             resultIndicator.textContent = '✗ Incorreto';
             resultIndicator.className = 'result-indicator result-incorrect';
-            // Mostra a resposta correta
+            
+            // Encontra e marca a resposta correta
+            let correctButton = null;
             Array.from(optionsGrid.children).forEach(btn => {
                 if (btn.textContent === correctAnswer) {
                     btn.classList.add('correct');
+                    correctButton = btn;
+                }
+            });
+            
+            // Fade out das opções que não são nem a escolhida nem a correta
+            Array.from(optionsGrid.children).forEach(btn => {
+                if (btn !== button && btn !== correctButton) {
+                    btn.classList.add('fade-out');
+                    setTimeout(() => {
+                        btn.classList.add('hidden');
+                    }, 300);
                 }
             });
         }
@@ -383,10 +500,12 @@ document.addEventListener('DOMContentLoaded', () => {
             );
         }
 
-        // Desabilita todos os botões e mostra o verso do card
-        Array.from(optionsGrid.children).forEach(btn => btn.disabled = true);
-        flashcard.classList.add('flipped');
-        nextBtn.style.display = 'inline-block';
+        // Mostra o verso do card e o botão próxima
+        setTimeout(() => {
+            flashcard.classList.add('flipped');
+            nextBtn.style.display = 'inline-block';
+        }, 400);
+        
         updateProgress();
     }
 
@@ -418,94 +537,58 @@ document.addEventListener('DOMContentLoaded', () => {
         
         finalScoreEl.textContent = `${correctAnswers} de ${currentQuestions.length} (${finalScore}%)`;
         
-        // Finaliza sessão no backend e recebe badges
-        let newBadges = [];
-        if (currentSession) {
-            newBadges = await completeQuiz(currentSession.id);
-        }
-        
         // Mensagem baseada na pontuação
         let message = '';
-        let scoreClass = '';
-        
         if (finalScore >= 90) {
-            message = 'Excelente! Você demonstra um conhecimento excepcional da Educação Clássica Cristã!';
-            scoreClass = 'score-excellent';
+            message = '🏆 Excelente! Você domina o assunto!';
         } else if (finalScore >= 70) {
-            message = 'Muito bom! Você tem uma boa base na Educação Clássica Cristã. Continue estudando!';
-            scoreClass = 'score-good';
+            message = '👏 Muito bom! Continue estudando!';
+        } else if (finalScore >= 50) {
+            message = '📚 Bom trabalho! Há espaço para melhorar.';
         } else {
-            message = 'Continue estudando! A jornada na Educação Clássica Cristã é longa e recompensadora.';
-            scoreClass = 'score-needs-improvement';
+            message = '💪 Continue se esforçando! A prática leva à perfeição.';
         }
-        
         scoreMessageEl.textContent = message;
-        finalScoreEl.className = `final-score ${scoreClass}`;
+
+        // Finaliza quiz no backend e busca badges
+        const earnedBadges = await completeQuiz(currentSession?.id);
+        const userBadges = await getUserBadges(currentUser?.id);
         
-        // Exibe badges conquistadas
-        displayUserBadges(newBadges);
+        displayBadges([...earnedBadges, ...userBadges]);
     }
 
-    // Exibe as badges do usuário
-    async function displayUserBadges(newBadges = []) {
+    // Exibe badges do usuário
+    function displayBadges(badges) {
         userBadgesEl.innerHTML = '';
         
-        // Busca todas as badges do usuário
-        let userBadges = [];
-        if (currentUser) {
-            userBadges = await getUserBadges(currentUser.id);
-        }
-        
-        // Se não conseguiu buscar do backend, usa localStorage
-        if (userBadges.length === 0) {
-            const savedBadges = localStorage.getItem('userBadges');
-            if (savedBadges) {
-                userBadges = JSON.parse(savedBadges);
-            }
-        }
-        
-        // Adiciona novas badges
-        newBadges.forEach(badge => {
-            if (!userBadges.find(b => b.name === badge.name)) {
-                userBadges.push(badge);
-            }
-        });
-        
-        // Salva no localStorage como backup
-        localStorage.setItem('userBadges', JSON.stringify(userBadges));
-        
-        // Exibe todas as badges disponíveis
-        for (const badgeKey in availableBadges) {
-            const badge = availableBadges[badgeKey];
-            const isUnlocked = userBadges.some(b => b.name === badge.name);
-            
-            const badgeElement = document.createElement('div');
-            badgeElement.className = 'badge-item';
-            badgeElement.innerHTML = `
-                <div class="badge-icon ${isUnlocked ? 'unlocked' : ''}">${badge.icon}</div>
-                <div class="badge-name">${badge.name}</div>
-            `;
-            userBadgesEl.appendChild(badgeElement);
-        }
-        
-        // Mostra mensagem de novas badges
-        if (newBadges.length > 0) {
-            const newBadgeNames = newBadges.map(b => b.name).join(', ');
-            setTimeout(() => {
-                alert(`🎉 Parabéns! Você conquistou: ${newBadgeNames}`);
-            }, 1000);
+        if (badges && badges.length > 0) {
+            badges.forEach(badgeName => {
+                const badge = availableBadges[badgeName];
+                if (badge) {
+                    const badgeEl = document.createElement('div');
+                    badgeEl.className = 'badge';
+                    badgeEl.innerHTML = `
+                        <span class="badge-icon">${badge.icon}</span>
+                        <div class="badge-info">
+                            <div class="badge-name">${badge.name}</div>
+                            <div class="badge-description">${badge.description}</div>
+                        </div>
+                    `;
+                    userBadgesEl.appendChild(badgeEl);
+                }
+            });
+        } else {
+            userBadgesEl.innerHTML = '<p>Continue jogando para conquistar badges!</p>';
         }
     }
 
     // Reinicia o quiz
     restartBtn.addEventListener('click', () => {
         completionScreen.classList.add('hidden');
-        identificationScreen.classList.remove('hidden');
-        currentUser = null;
-        currentSession = null;
+        selectionScreen.classList.remove('hidden');
     });
 
-    // Volta ao menu
+    // Volta ao menu principal
     backToMenuBtn.addEventListener('click', () => {
         completionScreen.classList.add('hidden');
         selectionScreen.classList.remove('hidden');
@@ -524,7 +607,41 @@ document.addEventListener('DOMContentLoaded', () => {
         return shuffled;
     }
 
-    // Inicializa o app
-    loadQuestions();
-});
+    // ===== FUNÇÕES DE DEBUG PARA VERIFICAR DADOS =====
+    window.showCollectedData = function() {
+        const data = localCollector.getData();
+        console.log('=== DADOS COLETADOS LOCALMENTE ===');
+        console.log(`Total de usuários: ${data.users.length}`);
+        console.log(`Total de sessões: ${data.sessions.length}`);
+        console.log('Usuários:', data.users);
+        console.log('Sessões:', data.sessions);
+        
+        // Gera relatório simples
+        let report = `RELATÓRIO BEMA! - ${new Date().toLocaleDateString('pt-BR')}\\n\\n`;
+        report += `📊 RESUMO:\\n`;
+        report += `• Usuários: ${data.users.length}\\n`;
+        report += `• Sessões: ${data.sessions.length}\\n\\n`;
+        
+        if (data.users.length > 0) {
+            report += `👥 USUÁRIOS:\\n`;
+            data.users.forEach((user, i) => {
+                const userSessions = data.sessions.filter(s => s.userId === user.id);
+                report += `${i+1}. ${user.name} (${user.email})\\n`;
+                report += `   Sessões: ${userSessions.length}\\n`;
+                if (userSessions.length > 0) {
+                    const avgScore = userSessions.reduce((sum, s) => sum + s.score, 0) / userSessions.length;
+                    report += `   Pontuação média: ${avgScore.toFixed(1)}%\\n`;
+                }
+                report += `\\n`;
+            });
+        }
+        
+        alert(report);
+    };
 
+    // Inicialização
+    loadQuestions();
+    
+    console.log('✅ Sistema BEMA! com coleta local inicializado');
+    console.log('Use showCollectedData() para ver os dados coletados');
+});
